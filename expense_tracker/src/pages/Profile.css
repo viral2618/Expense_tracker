@@ -1,81 +1,72 @@
 .profile-page {
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: center;
-  background: linear-gradient(135deg,#0f172a,#1e293b,#334155);
-  font-family: "Poppins", sans-serif;
+  align-items: flex-start;
+  padding: 30px;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #312e81 100%);
 }
 
 .profile-container {
-  width: 420px;
-  background: rgba(255,255,255,0.08);
-  padding: 35px;
-  border-radius: 15px;
-  backdrop-filter: blur(10px);
-  color: #e2e8f0;
-  box-shadow: 0 0 25px rgba(0,0,0,0.3);
+  background: rgba(255,255,255,0.95);
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  max-width: 500px;
+  width: 100%;
 }
 
-.profile-container h1 {
+.profile-container h1,
+.profile-container h2,
+.profile-container h3 {
   text-align: center;
-  font-size: 30px;
   margin-bottom: 20px;
-  color: white;
 }
 
-.profile-container h2 {
-  margin-top: 20px;
-  color: #cbd5e1;
+.profile-info p {
+  font-size: 16px;
+  margin-bottom: 10px;
 }
 
 .profile-container input {
   width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.18);
-  color: white;
-  border: none;
+  padding: 12px 15px;
   margin-bottom: 15px;
-  outline: none;
-  font-size: 15px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  transition: all 0.3s ease;
 }
 
 .profile-container input:focus {
-  background: rgba(255,255,255,0.25);
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
 .profile-container button {
   width: 100%;
   padding: 12px;
-  background: #6366f1;
-  border: none;
-  border-radius: 8px;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg,#3b82f6,#2563eb);
   color: white;
-  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
   cursor: pointer;
-  transition: 0.25s;
+  font-weight: 600;
+  transition: all 0.3s ease;
 }
 
 .profile-container button:hover {
-  background: #4f46e5;
-  transform: translateY(-2px);
+  background: linear-gradient(135deg,#2563eb,#1e40af);
 }
 
 .forgot-btn {
-  background: #0ea5e9 !important;
+  background: linear-gradient(135deg,#f97316,#ea580c);
 }
 
 .forgot-btn:hover {
-  background: #0284c7 !important;
-}
-
-.profile-info p {
-  font-size: 15px;
-  margin: 5px 0;
-}
-
-hr {
-  margin: 25px 0;
-  border: 1px solid rgba(255,255,255,0.15);
+  background: linear-gradient(135deg,#ea580c,#c2410c);
 }

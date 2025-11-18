@@ -187,3 +187,79 @@
   background: linear-gradient(135deg, #dc2626, #b91c1c);
   transform: translateY(-2px);
 }
+
+.sortable {
+    cursor: pointer;
+    
+}
+
+.income-row {
+    background-color: #e6ffed; 
+}
+
+.expense-row {
+    background-color: #ffe6e6;
+}
+
+.no-transactions {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+/* Filter Container */
+.filter-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  font-size: 16px;
+  color: #1e293b;
+}
+
+.filter-container label {
+  font-weight: 600;
+}
+
+/* Filter Dropdown */
+.filter-container select {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 2px solid rgba(148, 163, 184, 0.3);
+  font-size: 15px;
+  background: rgba(248, 250, 252, 0.8);
+  color: #1e293b;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.filter-container select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+/* Expense / Income Selector in Form */
+.expense-form select {
+  flex: 1;
+  min-width: 150px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 2px solid rgba(148, 163, 184, 0.3);
+  font-size: 15px;
+  background: rgba(248, 250, 252, 0.8);
+  color: #1e293b;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.expense-form select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+/* Sortable Header Hover */
+.sortable:hover {
+  text-decoration: underline;
+  color: #2563eb;
+}

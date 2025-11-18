@@ -1,70 +1,109 @@
-# Getting Started with Create React App
+This is a great assignment! Here is the content for the README.md file for your MERN stack Finance Tracker application, specifically tailored to mention the implemented features while noting the absence of the Change Password and Forget Password functionality.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+💰 Finance Tracker Web Application
+Welcome to the Finance Tracker, a full-stack web application built using the MERN (MongoDB, Express.js, React.js, Node.js) stack. This application allows authenticated users to securely track their income and expenses with a clean, responsive, and modern user interface.
 
-## Available Scripts
+✨ Features Implemented
+1. Finance Tracker (Home Page)
+Transaction Management: Authenticated users can easily add and view financial transactions.
 
-In the project directory, you can run:
+Add Transaction Form: A dedicated form with fields for Type (Income/Expense), Description, and Amount.
 
-### `npm start`
+Recent Transactions List: Displays a paginated list of all user transactions.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Filtering: Users can filter transactions by Type, Date Range, and Amount Range.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Sorting: Transactions can be sorted by Date, Amount, and Type.
 
-### `npm test`
+Server-Side Pagination: Efficiently handles large datasets for a smooth user experience.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+2. Profile Page
+User Information Display: Shows the user's Username, Email, and a masked representation of the Password.
 
-### `npm run build`
+Logout Functionality: A dedicated button to securely log the user out.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Database Driven: All profile values are fetched from the MongoDB database.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+3. Authentication & Authorization
+Secure Signup: Registers new users with OTP Verification and securely hashes passwords using Bcrypt.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Secure Signin: Allows users to log in (Optional OTP Verification on signin is planned/implemented).
 
-### `npm run eject`
+Token-Based Authentication: Uses JSON Web Tokens (JWT) for session management and securing API routes.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Authorization Guard: Users cannot access the /home or /profile routes without a valid JWT.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Backend Validation: Robust data validation is implemented on the backend for all API endpoints.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+🛑 Missing Features
+The following features were part of the core requirements but have not yet been implemented:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Forget Password: The functionality to reset a password via email/OTP is not yet built.
 
-## Learn More
+Change Password: The functionality to change the password from the Profile page is not yet built.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+⚙️ Technology Stack
+Frontend: React.js (with React Router for routing)
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Styling: [Specify your UI library here, e.g., Tailwind CSS or Bootstrap]
 
-### Code Splitting
+Backend: Node.js with Express.js
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Database: MongoDB (using Mongoose for object data modeling)
 
-### Analyzing the Bundle Size
+Authentication: JSON Web Tokens (JWT) and Bcrypt for hashing.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+OTP/Email Service: [Specify your email/OTP service here, e.g., Nodemailer]
 
-### Making a Progressive Web App
+🚀 Getting Started
+Follow these instructions to set up and run the project locally on your machine.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Prerequisites
+You need the following installed:
 
-### Advanced Configuration
+Node.js (v18+)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+MongoDB (local or cloud instance like MongoDB Atlas)
 
-### Deployment
+Git
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+1. Clone the Repository
+Bash
 
-### `npm run build` fails to minify
+git clone <your-repository-url>
+cd finance-tracker
+2. Configure Environment Variables
+Create a .env file in the root of the backend folder and add the following variables.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+# MongoDB Connection
+MONGO_URI=<Your-MongoDB-Connection-String>
+
+# JWT Secret Key
+JWT_SECRET=<A-Strong-Secret-Key>
+
+# Server Port
+PORT=5000
+
+# Email/OTP Configuration (e.g., for Nodemailer/Mailtrap/SendGrid)
+# NOTE: Replace with your actual service credentials
+EMAIL_USER=<Your-Email-Service-Username>
+EMAIL_PASS=<Your-Email-Service-Password>
+3. Setup and Run the Backend
+Navigate to the backend directory and install dependencies.
+
+Bash
+
+cd backend
+npm install
+npm start
+The backend server will start on http://localhost:5000 (or the port specified in your .env file).
+
+4. Setup and Run the Frontend
+Open a new terminal, navigate to the frontend directory, and install dependencies.
+
+Bash
+
+cd ../frontend
+npm install
+npm start
+The React development server will open the application in your browser at http://localhost:3000

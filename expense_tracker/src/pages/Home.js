@@ -1,148 +1,258 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import { handleSuccess, handleError } from "../utils";
 import "react-toastify/dist/ReactToastify.css";
 import "./Home.css";
 
+const formatDate = (timestamp) => {
+  if (!timestamp) return "N/A";
+  return new Date(timestamp).toLocaleDateString();
+};
+
 function Home() {
   const [loggedInUser, setLoggedInUser] = useState("");
-  const [expenses, setExpenses] = useState([]);
-  const [expenseInput, setExpenseInput] = useState({ title: "", amount: "" });
+  const [transactions, setTransactions] = useState([]);
+  const [transactionInput, setTransactionInput] = useState({
+    title: "",
+    amount: "",
+    type: "Expense",
+  });
   const [editId, setEditId] = useState(null);
+  const [sortConfig, setSortConfig] = useState({ key: "date", direction: "descending" });
+  const [filterType, setFilterType] = useState("all");
+
   const navigate = useNavigate();
 
-  // Load user and their expenses
+  // Fetch transactions
+  const fetchTransactions = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const res = await fetch("http://localhost:8080/transactions", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) setTransactions(data.transactions);
+      else handleError(data.message || "Failed to fetch transactions");
+    } catch (err) {
+      handleError(err.message);
+    }
+  };
+
   useEffect(() => {
     const user = localStorage.getItem("loggedInUser");
-    if (!user) navigate("/login");
-
+    const token = localStorage.getItem("token");
+    if (!user || !token) navigate("/login");
     setLoggedInUser(user);
-
-    // Load expenses for the logged-in user
-    const saved = localStorage.getItem(`expenses_${user}`);
-    if (saved) {
-      setExpenses(JSON.parse(saved));
-    }
+    fetchTransactions();
   }, [navigate]);
-
-  // Save expenses to localStorage whenever they change
-  useEffect(() => {
-    if (loggedInUser) {
-      localStorage.setItem(
-        `expenses_${loggedInUser}`,
-        JSON.stringify(expenses)
-      );
-    }
-  }, [expenses, loggedInUser]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("loggedInUser");
+    localStorage.removeItem("email");
     handleSuccess("User Logged Out");
     setTimeout(() => navigate("/login"), 1000);
   };
 
+  const handleGoProfile = () => {
+    navigate("/profile"); // Navigate to profile page
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setExpenseInput({ ...expenseInput, [name]: value });
+    setTransactionInput({ ...transactionInput, [name]: value });
   };
 
-  const handleAddOrEdit = (e) => {
+  const handleAddOrEdit = async (e) => {
     e.preventDefault();
-    const { title, amount } = expenseInput;
+    const { title, amount, type } = transactionInput;
+    if (!title || !amount || !type) return handleError("Title, Amount, Type required");
 
-    if (!title || !amount) return handleError("Title and Amount required");
+    const numericAmount = parseFloat(amount);
+    if (isNaN(numericAmount) || numericAmount <= 0) return handleError("Amount must be positive");
 
-    if (editId !== null) {
-      const updated = expenses.map((exp) =>
-        exp.id === editId ? { ...exp, title, amount } : exp
-      );
-      setExpenses(updated);
-      handleSuccess("Expense updated");
-      setEditId(null);
-    } else {
-      const newExp = { id: Date.now(), title, amount };
-      setExpenses([...expenses, newExp]);
-      handleSuccess("Expense added");
+    const token = localStorage.getItem("token");
+
+    try {
+      let res, data;
+      if (editId) {
+        res = await fetch(`http://localhost:8080/transactions/${editId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ title, amount: numericAmount, type }),
+        });
+        data = await res.json();
+        if (data.success) {
+          handleSuccess("Transaction updated");
+          fetchTransactions();
+          setEditId(null);
+        } else handleError(data.message || "Update failed");
+      } else {
+        res = await fetch("http://localhost:8080/transactions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ title, amount: numericAmount, type }),
+        });
+        data = await res.json();
+        if (data.success) {
+          handleSuccess("Transaction added");
+          fetchTransactions();
+        } else handleError(data.message || "Add failed");
+      }
+    } catch (err) {
+      handleError(err.message);
     }
 
-    setExpenseInput({ title: "", amount: "" });
+    setTransactionInput({ title: "", amount: "", type: "Expense" });
   };
 
-  const handleDelete = (id) => {
-    const updated = expenses.filter((exp) => exp.id !== id);
-    setExpenses(updated);
-    handleSuccess("Expense deleted");
+  const handleDelete = async (id) => {
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`http://localhost:8080/transactions/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success) {
+        handleSuccess("Transaction deleted");
+        fetchTransactions();
+      } else handleError(data.message || "Delete failed");
+    } catch (err) {
+      handleError(err.message);
+    }
   };
 
-  const handleEdit = (exp) => {
-    setExpenseInput({ title: exp.title, amount: exp.amount });
-    setEditId(exp.id);
+  const handleEdit = (t) => {
+    setTransactionInput({ title: t.title, amount: t.amount, type: t.type });
+    setEditId(t._id);
   };
+
+  const sortItems = (key) => {
+    let direction = "ascending";
+    if (sortConfig.key === key && sortConfig.direction === "ascending") direction = "descending";
+    setSortConfig({ key, direction });
+  };
+
+  const getSortIndicator = (key) => {
+    if (sortConfig.key !== key) return "";
+    return sortConfig.direction === "ascending" ? " ▲" : " ▼";
+  };
+
+  const sortedTransactions = useMemo(() => {
+    let sortableItems = [...transactions];
+    if (sortConfig.key) {
+      sortableItems.sort((a, b) => {
+        let aValue, bValue;
+        switch (sortConfig.key) {
+          case "amount":
+            aValue = a.amount;
+            bValue = b.amount;
+            break;
+          case "type":
+          case "title":
+            aValue = String(a[sortConfig.key]).toLowerCase();
+            bValue = String(b[sortConfig.key]).toLowerCase();
+            break;
+          case "date":
+            aValue = new Date(a.createdAt);
+            bValue = new Date(b.createdAt);
+            break;
+          default:
+            return 0;
+        }
+        if (aValue < bValue) return sortConfig.direction === "ascending" ? -1 : 1;
+        if (aValue > bValue) return sortConfig.direction === "ascending" ? 1 : -1;
+        return 0;
+      });
+    }
+    return sortableItems;
+  }, [transactions, sortConfig]);
+
+  const filteredTransactions = useMemo(() => {
+    if (filterType === "all") return sortedTransactions;
+    return sortedTransactions.filter((t) => t.type.toLowerCase() === filterType);
+  }, [sortedTransactions, filterType]);
 
   return (
     <div className="home-page">
       <div className="home-container">
         <div className="home-header">
           <h1>Welcome, {loggedInUser}</h1>
-          <button onClick={handleLogout}>Logout</button>
+          <div>
+            <button onClick={handleGoProfile}>Profile</button>
+            <button onClick={handleLogout}>Logout</button>
+          </div>
         </div>
 
         <div className="expense-form">
           <form onSubmit={handleAddOrEdit}>
             <input
               type="text"
-              placeholder="Expense Title"
+              placeholder="Title/Description"
               name="title"
-              value={expenseInput.title}
+              value={transactionInput.title}
               onChange={handleChange}
+              required
             />
             <input
               type="number"
               placeholder="Amount"
               name="amount"
-              value={expenseInput.amount}
+              value={transactionInput.amount}
               onChange={handleChange}
+              min="0.01"
+              step="0.01"
+              required
             />
-            <button type="submit">
-              {editId !== null ? "Update" : "Add"} Expense
-            </button>
+            <select name="type" value={transactionInput.type} onChange={handleChange} required>
+              <option value="Expense">Expense</option>
+              <option value="Income">Income</option>
+            </select>
+            <button type="submit">{editId ? "Update" : "Add"} Transaction</button>
           </form>
         </div>
 
         <div className="expense-table-container">
+          <h2>Recent Transactions</h2>
+          <div className="filter-container">
+            <label>Filter by Type: </label>
+            <select value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+              <option value="all">All</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+          </div>
+
           <table className="expense-table">
             <thead>
               <tr>
-                <th>Title</th>
-                <th>Amount (₹)</th>
+                <th onClick={() => sortItems("title")}>Description{getSortIndicator("title")}</th>
+                <th onClick={() => sortItems("type")}>Type{getSortIndicator("type")}</th>
+                <th onClick={() => sortItems("amount")}>Amount (₹){getSortIndicator("amount")}</th>
+                <th onClick={() => sortItems("date")}>Date{getSortIndicator("date")}</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {expenses.map((exp) => (
-                <tr key={exp.id}>
-                  <td>{exp.title}</td>
-                  <td>{exp.amount}</td>
+              {filteredTransactions.map((t) => (
+                <tr key={t._id} className={t.type === "Income" ? "income-row" : "expense-row"}>
+                  <td>{t.title}</td>
+                  <td>{t.type}</td>
+                  <td>{t.amount.toFixed(2)}</td>
+                  <td>{formatDate(t.createdAt)}</td>
                   <td className="table-actions">
-                    <button
-                      className="edit-btn"
-                      onClick={() => handleEdit(exp)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="delete-btn"
-                      onClick={() => handleDelete(exp.id)}
-                    >
-                      Delete
-                    </button>
+                    <button className="edit-btn" onClick={() => handleEdit(t)}>Edit</button>
+                    <button className="delete-btn" onClick={() => handleDelete(t._id)}>Delete</button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          {filteredTransactions.length === 0 && <p className="no-transactions">No transactions recorded.</p>}
         </div>
         <ToastContainer />
       </div>

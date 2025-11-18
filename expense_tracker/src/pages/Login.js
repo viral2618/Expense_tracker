@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import { handleError, handleSuccess } from '../utils';
+import 'react-toastify/dist/ReactToastify.css';
 import './Login.css';
 
 function Login() {
@@ -21,7 +22,7 @@ function Login() {
       const response = await fetch('http://localhost:8080/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(loginInfo)
+        body: JSON.stringify(loginInfo),
       });
 
       const result = await response.json();
@@ -31,6 +32,7 @@ function Login() {
         handleSuccess(messages);
         localStorage.setItem('token', jwtToken);
         localStorage.setItem('loggedInUser', name);
+        localStorage.setItem('email', email); // Save email
         setTimeout(() => navigate('/home'), 1000);
       } else {
         handleError(messages || 'Login failed');
@@ -52,7 +54,6 @@ function Login() {
             value={loginInfo.email}
             onChange={handleChange}
           />
-
           <input
             type="password"
             placeholder="Password"
